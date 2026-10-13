@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import api from '../api';
+import api from '../api/api';
 
 const empty = {
   client_id:'', title:'', description:'', due_date:'',
