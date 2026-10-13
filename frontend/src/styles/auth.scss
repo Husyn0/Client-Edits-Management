@@ -1,0 +1,24 @@
+@use 'variables' as *;
+
+.auth-page {
+  min-height: 100vh;
+  display: flex; align-items: center; justify-content: center;
+  padding: 20px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+.auth-card {
+  width: 100%; max-width: 400px; padding: 32px;
+  h1 { font-size: 22px; margin-bottom: 4px; }
+  .subtitle { color: $muted; margin-bottom: 24px; font-size: 13px; }
+  .full { width: 100%; margin-top: 8px; }
+  .error-box {
+    background: #fee2e2; color: #991b1b;
+    padding: 10px 14px; border-radius: $radius;
+    font-size: 13px; margin-bottom: 16px;
+  }
+  .switch-mode {
+    text-align: center; margin-top: 20px;
+    font-size: 13px; color: $muted;
+    a { color: $primary; font-weight: 600; cursor: pointer; }
+  }
+}
