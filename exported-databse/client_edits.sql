@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost:3306
--- Generation Time: Oct 13, 2026 at 09:33 AM
+-- Generation Time: Oct 15, 2026 at 09:31 PM
 -- Server version: 8.0.46-0ubuntu0.24.04.4
 -- PHP Version: 8.3.6
 
@@ -37,6 +37,13 @@ CREATE TABLE `attachments` (
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Dumping data for table `attachments`
+--
+
+INSERT INTO `attachments` (`id`, `edit_id`, `original_name`, `file_path`, `mime_type`, `size`, `created_at`, `updated_at`) VALUES
+(4, 5, 'sample.txt', 'attachments/fscQuWFVuT4JOvZHuQUlCOS2HRgw67LiDrYxDsqT.txt', 'text/plain', 6, '2026-10-15 17:18:58', '2026-10-15 17:18:58');
 
 -- --------------------------------------------------------
 
@@ -80,6 +87,16 @@ CREATE TABLE `clients` (
   `updated_at` timestamp NULL DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+--
+-- Dumping data for table `clients`
+--
+
+INSERT INTO `clients` (`id`, `name`, `phone`, `email`, `company_name`, `service`, `last_contact_followup`, `created_at`, `updated_at`) VALUES
+(1, 'jlk', 'sfa', 'saf@rsgafr', 'yyugu', 'ijhuygu', '2026-10-13', '2026-10-13 07:49:03', '2026-10-13 07:49:03'),
+(5, 'Dup', '123', 'test@example.com', 'Dup Co', 'X', NULL, '2026-10-15 17:05:48', '2026-10-15 17:05:48'),
+(6, 'A', '1', 'a_1792095538@a.co', 'A', 'S', NULL, '2026-10-15 17:18:58', '2026-10-15 17:18:58'),
+(9, 'Acme Corp', '+1-555-0100', 'contact_1792099250@acme.test', 'Acme Corporation', 'Full-Stack Development', '2026-10-16', '2026-10-15 18:20:50', '2026-10-15 18:21:11');
+
 -- --------------------------------------------------------
 
 --
@@ -99,6 +116,14 @@ CREATE TABLE `edits` (
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Dumping data for table `edits`
+--
+
+INSERT INTO `edits` (`id`, `client_id`, `title`, `description`, `due_date`, `priority`, `payment`, `is_paid`, `status`, `created_at`, `updated_at`) VALUES
+(1, 1, 'htyknj', 'jiyagyugjn', '2026-10-13', 'Low', NULL, 0, 'approved', '2026-10-13 07:49:37', '2026-10-13 07:49:37'),
+(5, 6, 't', 'd', NULL, 'High', NULL, 0, 'pending', '2026-10-15 17:18:58', '2026-10-15 17:18:58');
 
 -- --------------------------------------------------------
 
@@ -207,6 +232,19 @@ CREATE TABLE `personal_access_tokens` (
   `updated_at` timestamp NULL DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+--
+-- Dumping data for table `personal_access_tokens`
+--
+
+INSERT INTO `personal_access_tokens` (`id`, `tokenable_type`, `tokenable_id`, `name`, `token`, `abilities`, `last_used_at`, `expires_at`, `created_at`, `updated_at`) VALUES
+(3, 'App\\Models\\User', 3, 'api', 'd579ca2a9a8b5852247083cffffc54a851a6d6df2ea8580d290314d938b02003', '[\"*\"]', NULL, NULL, '2026-10-15 16:55:01', '2026-10-15 16:55:01'),
+(6, 'App\\Models\\User', 6, 'api', '11113cef226c30acfc47b7216ebdeb621db96063a3435a4f27dcd5713237eb46', '[\"*\"]', NULL, NULL, '2026-10-15 17:10:41', '2026-10-15 17:10:41'),
+(9, 'App\\Models\\User', 7, 'api', '6756a63dc4645db890c62f3feb86d355cdf4e6c5538ef78c6099096f748ad3cf', '[\"*\"]', '2026-10-15 17:18:58', NULL, '2026-10-15 17:18:46', '2026-10-15 17:18:58'),
+(10, 'App\\Models\\User', 8, 'api', '5bb53b765bdac309cb46aba4fbe68613e76c632cc8ce264fa73fc4d2d7a2417e', '[\"*\"]', NULL, NULL, '2026-10-15 17:36:03', '2026-10-15 17:36:03'),
+(13, 'App\\Models\\User', 1, 'api', '9053aa0e581104eb0a1977538a269c87c66221398459b9c9dc4231cd5e4d5e8a', '[\"*\"]', '2026-10-15 18:14:59', NULL, '2026-10-15 18:14:58', '2026-10-15 18:14:59'),
+(14, 'App\\Models\\User', 9, 'api', '066e0d9a66c3f86f176514e1d4c9b090befe025cbea1970d1418245a6ed6b352', '[\"*\"]', NULL, NULL, '2026-10-15 18:20:03', '2026-10-15 18:20:03'),
+(16, 'App\\Models\\User', 1, 'api', '57e5d0232064b0f5133f8c1e56fc0a4623292197d4899c9e2af41b79064f90f6', '[\"*\"]', '2026-10-15 18:25:38', NULL, '2026-10-15 18:20:25', '2026-10-15 18:25:38');
+
 -- --------------------------------------------------------
 
 --
@@ -244,8 +282,15 @@ CREATE TABLE `users` (
 --
 
 INSERT INTO `users` (`id`, `name`, `email`, `email_verified_at`, `password`, `remember_token`, `created_at`, `updated_at`) VALUES
-(1, 'husyn', 'test@example.com', NULL, '$2y$12$iBjvaunBYFtV6RmPDwpexemch69ObysjjiYzgxPbZhq0D7fqVsa.G', NULL, '2026-10-13 06:00:04', '2026-10-13 06:00:04'),
-(2, 'Test User', 'test_1791883839@example.com', NULL, '$2y$12$u991eyaV.iNQ50FOQwNcfewEzqh2vwwsJOXSXFGRO0bLEo5RM9lEi', NULL, '2026-10-13 06:30:39', '2026-10-13 06:30:39');
+(1, 'husyn', 'test@example.com', NULL, '$2y$12$p6oSaQIGgjhKHn0997rAx.GkB0clIuPQtt8tZDtugq7AAxlD0t9Nu', NULL, '2026-10-13 07:48:20', '2026-10-13 07:48:20'),
+(2, 'Smoke User', 'smoke_1792093924@example.com', NULL, '$2y$12$UFh5FgzFoqqAI2or4SUPMOYeiYh6nGaWyQZUkWQ5XjA8VcOsA06UO', NULL, '2026-10-15 16:52:05', '2026-10-15 16:52:05'),
+(3, 'X', 'x_1792094101@ex.com', NULL, '$2y$12$ruGOK3AwL2DyHyB1AKI/pOHODqJEGimQlocf98Ienv4aWqoutLpzy', NULL, '2026-10-15 16:55:01', '2026-10-15 16:55:01'),
+(4, 'Diag', 'diag_1792094307@example.com', NULL, '$2y$12$4OB4vbiwCMkDNSpg3vfqW.d7o8wAqFZFAxKBuD6Iz5WUg6UX7P9Ly', NULL, '2026-10-15 16:58:27', '2026-10-15 16:58:27'),
+(5, 'Test User', 't_1792094712@example.com', NULL, '$2y$12$cLlMX6VzwF4me/yhryv7W.hU/EdVBVxGKN2eNfWm2JPunKz5IDrRi', NULL, '2026-10-15 17:05:12', '2026-10-15 17:05:12'),
+(6, 'Test User', 'test_1792095041@example.com', NULL, '$2y$12$sDtYkDC6XRAg5oSlTWg0juQIdXknQWQyNuklOwXQ.BS9bzPYKfi8.', NULL, '2026-10-15 17:10:41', '2026-10-15 17:10:41'),
+(7, 'T', 't_1792095525@ex.com', NULL, '$2y$12$QLjkvFzVYh3glondDovdiee.sggp.Gs7ND6VSJC8tchhjmnPxDpgK', NULL, '2026-10-15 17:18:46', '2026-10-15 17:18:46'),
+(8, 'Test User', 'test_1792096562@example.com', NULL, '$2y$12$Iki./t/SlwaNKjKh0Wi5xOaHUrlmSAd20tFPIVbg6uEWRzZyzdzD6', NULL, '2026-10-15 17:36:03', '2026-10-15 17:36:03'),
+(9, 'Test User', 'test_1792099203@example.com', NULL, '$2y$12$3TKEHN6iDH3iEPn5/EDUrexKPNN4PBm8o/zhtQJ2W94DgZBl/MKj2', NULL, '2026-10-15 18:20:03', '2026-10-15 18:20:03');
 
 --
 -- Indexes for dumped tables
@@ -351,19 +396,19 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT for table `attachments`
 --
 ALTER TABLE `attachments`
-  MODIFY `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT;
+  MODIFY `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- AUTO_INCREMENT for table `clients`
 --
 ALTER TABLE `clients`
-  MODIFY `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT;
+  MODIFY `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
 
 --
 -- AUTO_INCREMENT for table `edits`
 --
 ALTER TABLE `edits`
-  MODIFY `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT;
+  MODIFY `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
 
 --
 -- AUTO_INCREMENT for table `failed_jobs`
@@ -387,13 +432,13 @@ ALTER TABLE `migrations`
 -- AUTO_INCREMENT for table `personal_access_tokens`
 --
 ALTER TABLE `personal_access_tokens`
-  MODIFY `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT;
+  MODIFY `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=17;
 
 --
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-  MODIFY `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
 
 --
 -- Constraints for dumped tables
