@@ -1,0 +1,40 @@
+@use 'variables' as *;
+
+.charts-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(420px, 1fr));
+  gap: 16px;
+  margin-bottom: 25px;
+}
+
+.chart-card {
+  h3 {
+    font-size: 13px;
+    font-weight: 600;
+    color: $muted;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    margin-bottom: 12px;
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 12px;
+  }
+
+  .chart-sub {
+    font-size: 11px;
+    font-weight: 500;
+    color: $text;
+    text-transform: none;
+    letter-spacing: 0;
+    white-space: nowrap;
+  }
+
+  .recharts-legend-item-text {
+    color: $text !important;
+    font-size: 12px;
+  }
+  .recharts-tooltip-wrapper {
+    font-size: 12px;
+  }
+}
