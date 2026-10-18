@@ -5,7 +5,16 @@ const empty = {
   client_id:'', title:'', description:'', due_date:'',
   priority:'Medium', payment:'', is_paid:false, status:'pending'
 };
-
+const fmtDate = (v) => {
+  if (!v) return '-';
+  const d = new Date(String(v).slice(0, 10) + 'T00:00:00');
+  if (Number.isNaN(d.getTime())) return '-';
+  return d.toLocaleDateString(undefined, {
+    day: '2-digit',
+    month: 'short',
+    year: 'numeric',
+  });
+};
 export default function Edits() {
   const [edits, setEdits] = useState([]);
   const [clients, setClients] = useState([]);
@@ -91,7 +100,7 @@ export default function Edits() {
               <td>{e.client?.name}</td>
               <td><span className={`badge badge-${e.status}`}>{e.status}</span></td>
               <td><span className={`badge badge-${e.priority}`}>{e.priority}</span></td>
-              <td>{e.due_date || '-'}</td>
+              <td>{fmtDate(e.due_date)}</td>
               <td>{e.payment ? `$${e.payment} ${e.is_paid ? '✅' : '⏳'}` : '-'}</td>
               <td>{e.attachments_count}</td>
               <td style={{ textAlign:'right', whiteSpace:'nowrap' }}>
