@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import '../styles/auth.scss';
+// import '../styles/auth.scss';
 
 export default function Auth() {
   const [mode, setMode] = useState('login');

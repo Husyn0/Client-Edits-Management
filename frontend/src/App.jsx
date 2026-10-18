@@ -7,7 +7,6 @@ import Edits from './pages/Edits';
 import Attachments from './pages/Attachments';
 import Auth from './pages/Auth';
 import './styles/main.scss';
-import './styles/components.scss';
 
 function Protected({ children }) {
   const { user, loading } = useAuth();
