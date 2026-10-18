@@ -1,41 +1,232 @@
 @use 'variables' as *;
 
-.app-layout { display: flex; min-height: 100vh; }
+.app-layout {
+  display: flex;
+  min-height: 100vh;
+  position: relative;
+}
 
+/* ---------- Mobile hamburger ---------- */
+.sidebar-toggle {
+  display: none;
+  position: fixed;
+  top: 16px;
+  left: 16px;
+  z-index: 60;
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  border: 1px solid $border;
+  background: $surface;
+  color: $text;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+  transition: background 0.15s;
+
+  &:hover { background: $bg; }
+  &:focus-visible { outline: 2px solid $primary; outline-offset: 2px; }
+}
+
+/* ---------- Backdrop ---------- */
+.sidebar-backdrop {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  z-index: 40;
+  opacity: 0;
+  transition: opacity 0.25s ease;
+  pointer-events: none;
+}
+
+/* ---------- Sidebar ---------- */
 .sidebar {
   width: 240px;
+  flex-shrink: 0;
   background: $surface;
   border-right: 1px solid $border;
-  padding: 20px;
+  padding: 20px 14px;
   display: flex;
   flex-direction: column;
   position: sticky;
   top: 0;
   height: 100vh;
+  transition: width 0.22s ease, padding 0.22s ease;
+  overflow: hidden;
 
-  .brand { font-size: 16px; margin-bottom: 24px; color: $primary; }
+  .sidebar-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 24px;
+    padding: 0 4px;
+
+    .brand-text {
+      font-size: 15px;
+      font-weight: 700;
+      color: $primary;
+      white-space: nowrap;
+      transition: opacity 0.15s;
+    }
+
+    .collapse-btn {
+      width: 28px;
+      height: 28px;
+      border-radius: 6px;
+      border: 1px solid $border;
+      background: transparent;
+      color: $muted;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      transition: background 0.15s, color 0.15s;
+
+      &:hover { background: $bg; color: $text; }
+      &:focus-visible { outline: 2px solid $primary; outline-offset: 2px; }
+    }
+  }
 
   nav {
-    display: flex; flex-direction: column; gap: 4px; flex: 1;
-    a {
-      padding: 10px 12px; border-radius: $radius;
-      color: $muted; font-weight: 500;
-      &:hover { background: $bg; color: $text; }
-      &.active { background: $primary; color: white; }
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    flex: 1;
+  }
+
+  .nav-link {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 12px;
+    border-radius: $radius;
+    color: $muted;
+    font-weight: 500;
+    white-space: nowrap;
+    transition: background 0.15s, color 0.15s;
+
+    .nav-icon { flex-shrink: 0; }
+    .nav-label { transition: opacity 0.15s; }
+
+    &:hover { background: $bg; color: $text; }
+    &.active { background: $primary; color: #fff; }
+
+    /* Tooltip when collapsed */
+    &[data-tooltip]::after {
+      content: attr(data-tooltip);
+      position: absolute;
+      left: calc(100% + 10px);
+      top: 50%;
+      transform: translateY(-50%);
+      background: #0f172a;
+      color: #fff;
+      font-size: 12px;
+      font-weight: 500;
+      padding: 6px 10px;
+      border-radius: 6px;
+      white-space: nowrap;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.15s;
+      z-index: 70;
     }
   }
 
   .user-box {
-    border-top: 1px solid $border; padding-top: 16px;
-    .user-name { font-weight: 600; margin-bottom: 8px; }
-    button { width: 100%; }
+    border-top: 1px solid $border;
+    padding-top: 16px;
+    margin-top: 12px;
+
+    .user-name {
+      font-weight: 600;
+      margin-bottom: 8px;
+      font-size: 13px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      transition: opacity 0.15s;
+    }
+    .logout-btn { width: 100%; }
   }
 }
 
-.main-content { flex: 1; padding: 32px; overflow-x: auto; }
+/* ---------- Collapsed (desktop) ---------- */
+.app-layout.sidebar-collapsed {
+  .sidebar {
+    width: 68px;
+    padding: 20px 10px;
+  }
+
+  .sidebar-head {
+    flex-direction: column;
+    justify-content: center;
+    gap: 10px;
+
+    .brand-text {
+      opacity: 0;
+      width: 0;
+      height: 0;
+      overflow: hidden;
+    }
+
+    .collapse-btn {
+      display: inline-flex; // keep the toggle visible
+      width: 40px;
+      height: 32px;
+      border-radius: 8px;
+      background: $bg;
+      color: $text;
+
+      &:hover {
+        background: $primary;
+        color: #fff;
+      }
+    }
+  }
+
+  .nav-link {
+    justify-content: center;
+    padding: 10px;
+
+    .nav-label {
+      opacity: 0;
+      width: 0;
+      overflow: hidden;
+    }
+  }
+
+  .nav-link[data-tooltip]:hover::after,
+  .nav-link[data-tooltip]:focus-visible::after {
+    opacity: 1;
+  }
+
+  .user-name {
+    opacity: 0;
+    height: 0;
+    margin: 0;
+    overflow: hidden;
+  }
+
+  .logout-btn {
+    padding: 8px 0;
+    font-size: 11px;
+  }
+}
+
+/* ---------- Main content ---------- */
+.main-content {
+  flex: 1;
+  padding: 32px;
+  overflow-x: auto;
+  min-width: 0;
+}
 
 .page-header {
-  display: flex; justify-content: space-between; align-items: center;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   margin-bottom: 24px;
   h1 { font-size: 24px; }
 }
@@ -48,6 +239,67 @@
 }
 
 .stat-card {
-  .stat-label { color: $muted; font-size: 12px; text-transform: uppercase; margin-bottom: 6px; }
+  .stat-label {
+    color: $muted;
+    font-size: 12px;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
   .stat-value { font-size: 28px; font-weight: 700; }
+}
+
+/* ---------- Mobile: off-canvas ---------- */
+@media (max-width: 900px) {
+  .sidebar-toggle { display: inline-flex; }
+
+  .main-content {
+    padding: 72px 20px 32px;
+  }
+
+  .sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 50;
+    width: 260px;
+    padding: 20px 14px;
+    transform: translateX(-100%);
+    transition: transform 0.25s ease;
+    box-shadow: 4px 0 24px rgba(0, 0, 0, 0.12);
+  }
+
+  /* Force expanded appearance inside mobile drawer */
+  .app-layout .sidebar .sidebar-head {
+    justify-content: space-between;
+    .brand-text { opacity: 1; width: auto; }
+    .collapse-btn { display: none; } // no collapse on mobile
+  }
+
+  .app-layout .sidebar .nav-link {
+    justify-content: flex-start;
+    padding: 10px 12px;
+    .nav-label { opacity: 1; width: auto; }
+  }
+
+  .app-layout .sidebar .user-name {
+    opacity: 1;
+    height: auto;
+    margin-bottom: 8px;
+  }
+
+  /* Hide the desktop collapse state on mobile */
+  .app-layout.sidebar-collapsed .sidebar {
+    width: 260px;
+    padding: 20px 14px;
+  }
+
+  .sidebar-backdrop { display: block; }
+
+  .app-layout.sidebar-open {
+    .sidebar { transform: translateX(0); }
+    .sidebar-backdrop {
+      opacity: 1;
+      pointer-events: auto;
+    }
+  }
 }
