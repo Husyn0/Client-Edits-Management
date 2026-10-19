@@ -19,27 +19,22 @@ class ClientController extends Controller {
 
     public function store(Request $request) {
         $data = $request->validate([
-            'name' => 'required|string|max:255',
-            'phone' => 'required|string|max:50',
-            'email' => 'required|email|unique:clients',
-            'company_name' => 'required|string|max:255',
-            'service' => 'required|string|max:255',
+            'name'                  => 'required|string|max:255',
+            'phone'                 => 'required|string|max:50',
+            'email'                 => 'required|email|unique:clients',
             'last_contact_followup' => 'nullable|date',
         ]);
         return Client::create($data);
     }
-
     public function show(Client $client) {
-        return $client->load('edits.attachments');
+        return $client->load('companies.services', 'edits.attachments');
     }
 
     public function update(Request $request, Client $client) {
         $data = $request->validate([
-            'name' => 'sometimes|required|string|max:255',
-            'phone' => 'sometimes|required|string|max:50',
-            'email' => 'sometimes|required|email|unique:clients,email,'.$client->id,
-            'company_name' => 'sometimes|required|string|max:255',
-            'service' => 'sometimes|required|string|max:255',
+            'name'                  => 'sometimes|required|string|max:255',
+            'phone'                 => 'sometimes|required|string|max:50',
+            'email'                 => 'sometimes|required|email|unique:clients,email,'.$client->id,
             'last_contact_followup' => 'nullable|date',
         ]);
         $client->update($data);

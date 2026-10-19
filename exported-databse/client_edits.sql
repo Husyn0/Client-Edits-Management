@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost:3306
--- Generation Time: Oct 15, 2026 at 09:31 PM
+-- Generation Time: Oct 19, 2026 at 10:54 AM
 -- Server version: 8.0.46-0ubuntu0.24.04.4
 -- PHP Version: 8.3.6
 
@@ -43,7 +43,11 @@ CREATE TABLE `attachments` (
 --
 
 INSERT INTO `attachments` (`id`, `edit_id`, `original_name`, `file_path`, `mime_type`, `size`, `created_at`, `updated_at`) VALUES
-(4, 5, 'sample.txt', 'attachments/fscQuWFVuT4JOvZHuQUlCOS2HRgw67LiDrYxDsqT.txt', 'text/plain', 6, '2026-10-15 17:18:58', '2026-10-15 17:18:58');
+(9, 14, 'Hussein-Azzam-Week-5-report.docx', 'attachments/MKP9DMQKbPlsJzJkv41dBx6M7ECmIgTexpHoKFxH.docx', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 28449, '2026-10-18 12:37:26', '2026-10-18 12:37:26'),
+(10, 13, 'Hussein-Azzam-Week-8-report.pdf', 'attachments/SZa9iJzAaPNGGDG8pEsjFuj1jv0pBDi0xyC40nbz.pdf', 'application/pdf', 52570, '2026-10-18 12:37:35', '2026-10-18 12:37:35'),
+(11, 10, 'Hussein-Azzam-Week-10-report.docx', 'attachments/YwITFDMHu1L1kPTsDbgQEWhzSt2bJovxzR0PGYTV.zip', 'application/zip', 29546, '2026-10-18 12:37:44', '2026-10-18 12:37:44'),
+(12, 14, 'Hussein-Azzam-Week-5-report.pdf', 'attachments/2xaLoNX4Pn6uZKW1ycwQOZ9jBE4l2bzFHf3WV7m1.pdf', 'application/pdf', 43030, '2026-10-19 05:19:35', '2026-10-19 05:19:35'),
+(13, 14, 'Hussein-Azzam-Week-6-report.pdf', 'attachments/Tiap03gA5aowrW4p4v7RsBbwepe9f2yqbzNypAzd.pdf', 'application/pdf', 44290, '2026-10-19 05:19:56', '2026-10-19 05:19:56');
 
 -- --------------------------------------------------------
 
@@ -80,8 +84,6 @@ CREATE TABLE `clients` (
   `name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
   `phone` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
   `email` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `company_name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `service` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
   `last_contact_followup` date DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL
@@ -91,11 +93,38 @@ CREATE TABLE `clients` (
 -- Dumping data for table `clients`
 --
 
-INSERT INTO `clients` (`id`, `name`, `phone`, `email`, `company_name`, `service`, `last_contact_followup`, `created_at`, `updated_at`) VALUES
-(1, 'jlk', 'sfa', 'saf@rsgafr', 'yyugu', 'ijhuygu', '2026-10-13', '2026-10-13 07:49:03', '2026-10-13 07:49:03'),
-(5, 'Dup', '123', 'test@example.com', 'Dup Co', 'X', NULL, '2026-10-15 17:05:48', '2026-10-15 17:05:48'),
-(6, 'A', '1', 'a_1792095538@a.co', 'A', 'S', NULL, '2026-10-15 17:18:58', '2026-10-15 17:18:58'),
-(9, 'Acme Corp', '+1-555-0100', 'contact_1792099250@acme.test', 'Acme Corporation', 'Full-Stack Development', '2026-10-16', '2026-10-15 18:20:50', '2026-10-15 18:21:11');
+INSERT INTO `clients` (`id`, `name`, `phone`, `email`, `last_contact_followup`, `created_at`, `updated_at`) VALUES
+(1, 'jlk', 'sfa', 'saf@rsgafr', '2026-10-13', '2026-10-13 07:49:03', '2026-10-13 07:49:03'),
+(5, 'Dup', '123', 'test@example.com', NULL, '2026-10-15 17:05:48', '2026-10-15 17:05:48'),
+(6, 'A', '1', 'a_1792095538@a.co', NULL, '2026-10-15 17:18:58', '2026-10-15 17:18:58'),
+(9, 'Acme Corp', 'kj', 'contact_1792099250@acme.test', '2026-10-16', '2026-10-15 18:20:50', '2026-10-18 12:57:27');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `companies`
+--
+
+CREATE TABLE `companies` (
+  `id` bigint UNSIGNED NOT NULL,
+  `client_id` bigint UNSIGNED NOT NULL,
+  `name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `phone` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `email` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `address` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Dumping data for table `companies`
+--
+
+INSERT INTO `companies` (`id`, `client_id`, `name`, `phone`, `email`, `address`, `created_at`, `updated_at`) VALUES
+(1, 1, 'yyugu', 'sfa', 'saf@rsgafr', NULL, '2026-10-19 10:49:56', '2026-10-19 10:49:56'),
+(2, 5, 'Dup Co', '123', 'test@example.com', NULL, '2026-10-19 10:49:56', '2026-10-19 10:49:56'),
+(3, 6, 'A', '1', 'a_1792095538@a.co', NULL, '2026-10-19 10:49:56', '2026-10-19 10:49:56'),
+(4, 9, 'Acme Corporation', 'kj', 'contact_1792099250@acme.test', NULL, '2026-10-19 10:49:56', '2026-10-19 10:49:56');
 
 -- --------------------------------------------------------
 
@@ -106,6 +135,7 @@ INSERT INTO `clients` (`id`, `name`, `phone`, `email`, `company_name`, `service`
 CREATE TABLE `edits` (
   `id` bigint UNSIGNED NOT NULL,
   `client_id` bigint UNSIGNED NOT NULL,
+  `service_id` bigint UNSIGNED NOT NULL,
   `title` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
   `description` text COLLATE utf8mb4_unicode_ci NOT NULL,
   `due_date` date DEFAULT NULL,
@@ -121,9 +151,13 @@ CREATE TABLE `edits` (
 -- Dumping data for table `edits`
 --
 
-INSERT INTO `edits` (`id`, `client_id`, `title`, `description`, `due_date`, `priority`, `payment`, `is_paid`, `status`, `created_at`, `updated_at`) VALUES
-(1, 1, 'htyknj', 'jiyagyugjn', '2026-10-13', 'Low', NULL, 0, 'approved', '2026-10-13 07:49:37', '2026-10-13 07:49:37'),
-(5, 6, 't', 'd', NULL, 'High', NULL, 0, 'pending', '2026-10-15 17:18:58', '2026-10-15 17:18:58');
+INSERT INTO `edits` (`id`, `client_id`, `service_id`, `title`, `description`, `due_date`, `priority`, `payment`, `is_paid`, `status`, `created_at`, `updated_at`) VALUES
+(9, 9, 4, 'khgg', 'hhjg', '2026-10-28', 'Medium', 56.00, 1, 'in_progress', '2026-10-18 11:36:43', '2026-10-18 13:10:32'),
+(10, 5, 2, 'bhg', 'jhghf', NULL, 'High', 15.00, 0, 'pending', '2026-10-18 12:06:24', '2026-10-18 13:10:43'),
+(11, 1, 1, 'jhgjh', 'hfdgs', '2026-10-29', 'Low', NULL, 0, 'done', '2026-10-18 12:07:57', '2026-10-18 12:07:57'),
+(12, 5, 2, 'hkbh', 'fsawrx', NULL, 'Low', NULL, 0, 'done', '2026-10-18 12:08:43', '2026-10-18 12:08:43'),
+(13, 6, 3, 'njhvc', 'l;kjh', '2026-10-30', 'Medium', NULL, 0, 'cancelled', '2026-10-18 12:09:34', '2026-10-18 12:09:34'),
+(14, 9, 4, 'jyftdr', 'bhjvhcg', '2026-10-29', 'High', NULL, 0, 'approved', '2026-10-18 12:10:23', '2026-10-18 12:10:23');
 
 -- --------------------------------------------------------
 
@@ -243,7 +277,34 @@ INSERT INTO `personal_access_tokens` (`id`, `tokenable_type`, `tokenable_id`, `n
 (10, 'App\\Models\\User', 8, 'api', '5bb53b765bdac309cb46aba4fbe68613e76c632cc8ce264fa73fc4d2d7a2417e', '[\"*\"]', NULL, NULL, '2026-10-15 17:36:03', '2026-10-15 17:36:03'),
 (13, 'App\\Models\\User', 1, 'api', '9053aa0e581104eb0a1977538a269c87c66221398459b9c9dc4231cd5e4d5e8a', '[\"*\"]', '2026-10-15 18:14:59', NULL, '2026-10-15 18:14:58', '2026-10-15 18:14:59'),
 (14, 'App\\Models\\User', 9, 'api', '066e0d9a66c3f86f176514e1d4c9b090befe025cbea1970d1418245a6ed6b352', '[\"*\"]', NULL, NULL, '2026-10-15 18:20:03', '2026-10-15 18:20:03'),
-(16, 'App\\Models\\User', 1, 'api', '57e5d0232064b0f5133f8c1e56fc0a4623292197d4899c9e2af41b79064f90f6', '[\"*\"]', '2026-10-15 18:25:38', NULL, '2026-10-15 18:20:25', '2026-10-15 18:25:38');
+(16, 'App\\Models\\User', 1, 'api', '57e5d0232064b0f5133f8c1e56fc0a4623292197d4899c9e2af41b79064f90f6', '[\"*\"]', '2026-10-15 18:25:38', NULL, '2026-10-15 18:20:25', '2026-10-15 18:25:38'),
+(19, 'App\\Models\\User', 1, 'api', '520ca2e8639ce8241cf773ece3ede11232a3297470ed3b4acb6a04c385282f00', '[\"*\"]', '2026-10-19 05:23:00', NULL, '2026-10-19 05:16:38', '2026-10-19 05:23:00');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `services`
+--
+
+CREATE TABLE `services` (
+  `id` bigint UNSIGNED NOT NULL,
+  `company_id` bigint UNSIGNED NOT NULL,
+  `name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `description` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
+  `base_price` decimal(10,2) DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Dumping data for table `services`
+--
+
+INSERT INTO `services` (`id`, `company_id`, `name`, `description`, `base_price`, `created_at`, `updated_at`) VALUES
+(1, 1, 'ijhuygu', NULL, NULL, '2026-10-19 10:50:27', '2026-10-19 10:50:27'),
+(2, 2, 'X', NULL, NULL, '2026-10-19 10:50:27', '2026-10-19 10:50:27'),
+(3, 3, 'S', NULL, NULL, '2026-10-19 10:50:27', '2026-10-19 10:50:27'),
+(4, 4, 'Full-Stack Development', NULL, NULL, '2026-10-19 10:50:27', '2026-10-19 10:50:27');
 
 -- --------------------------------------------------------
 
@@ -325,11 +386,20 @@ ALTER TABLE `clients`
   ADD UNIQUE KEY `clients_email_unique` (`email`);
 
 --
+-- Indexes for table `companies`
+--
+ALTER TABLE `companies`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `companies_client_id_name_unique` (`client_id`,`name`),
+  ADD KEY `companies_client_id_foreign` (`client_id`);
+
+--
 -- Indexes for table `edits`
 --
 ALTER TABLE `edits`
   ADD PRIMARY KEY (`id`),
-  ADD KEY `edits_client_id_foreign` (`client_id`);
+  ADD KEY `edits_client_id_foreign` (`client_id`),
+  ADD KEY `edits_service_id_foreign` (`service_id`);
 
 --
 -- Indexes for table `failed_jobs`
@@ -374,6 +444,14 @@ ALTER TABLE `personal_access_tokens`
   ADD KEY `personal_access_tokens_expires_at_index` (`expires_at`);
 
 --
+-- Indexes for table `services`
+--
+ALTER TABLE `services`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `services_company_id_name_unique` (`company_id`,`name`),
+  ADD KEY `services_company_id_foreign` (`company_id`);
+
+--
 -- Indexes for table `sessions`
 --
 ALTER TABLE `sessions`
@@ -396,7 +474,7 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT for table `attachments`
 --
 ALTER TABLE `attachments`
-  MODIFY `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
 
 --
 -- AUTO_INCREMENT for table `clients`
@@ -405,10 +483,16 @@ ALTER TABLE `clients`
   MODIFY `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
 
 --
+-- AUTO_INCREMENT for table `companies`
+--
+ALTER TABLE `companies`
+  MODIFY `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
+
+--
 -- AUTO_INCREMENT for table `edits`
 --
 ALTER TABLE `edits`
-  MODIFY `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
+  MODIFY `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=15;
 
 --
 -- AUTO_INCREMENT for table `failed_jobs`
@@ -432,7 +516,13 @@ ALTER TABLE `migrations`
 -- AUTO_INCREMENT for table `personal_access_tokens`
 --
 ALTER TABLE `personal_access_tokens`
-  MODIFY `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=17;
+  MODIFY `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=20;
+
+--
+-- AUTO_INCREMENT for table `services`
+--
+ALTER TABLE `services`
+  MODIFY `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
 
 --
 -- AUTO_INCREMENT for table `users`
@@ -451,10 +541,23 @@ ALTER TABLE `attachments`
   ADD CONSTRAINT `attachments_edit_id_foreign` FOREIGN KEY (`edit_id`) REFERENCES `edits` (`id`) ON DELETE CASCADE;
 
 --
+-- Constraints for table `companies`
+--
+ALTER TABLE `companies`
+  ADD CONSTRAINT `companies_client_id_foreign` FOREIGN KEY (`client_id`) REFERENCES `clients` (`id`) ON DELETE CASCADE;
+
+--
 -- Constraints for table `edits`
 --
 ALTER TABLE `edits`
-  ADD CONSTRAINT `edits_client_id_foreign` FOREIGN KEY (`client_id`) REFERENCES `clients` (`id`) ON DELETE CASCADE;
+  ADD CONSTRAINT `edits_client_id_foreign` FOREIGN KEY (`client_id`) REFERENCES `clients` (`id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `edits_service_id_foreign` FOREIGN KEY (`service_id`) REFERENCES `services` (`id`) ON DELETE CASCADE;
+
+--
+-- Constraints for table `services`
+--
+ALTER TABLE `services`
+  ADD CONSTRAINT `services_company_id_foreign` FOREIGN KEY (`company_id`) REFERENCES `companies` (`id`) ON DELETE CASCADE;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
