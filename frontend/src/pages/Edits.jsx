@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import api from '../api/api';
 
 const empty = {
@@ -15,11 +15,29 @@ const fmtDate = (v) => {
   });
 };
 
+const PAYMENT_OPTIONS = [
+  { value: '', label: 'All payments' },
+  { value: 'paid', label: 'Paid' },
+  { value: 'unpaid', label: 'Unpaid' },
+  { value: 'free', label: 'Free (no payment)' },
+];
+
 export default function Edits() {
   const [edits, setEdits] = useState([]);
   const [clients, setClients] = useState([]);
   const [services, setServices] = useState([]);
-  const [filters, setFilters] = useState({ status:'', priority:'', search:'', service_id:'' });
+  const [companies, setCompanies] = useState([]);
+
+  const [filters, setFilters] = useState({
+    search: '',
+    status: '',
+    priority: '',
+    payment: '',       // '' | 'paid' | 'unpaid' | 'free'
+    client_id: '',
+    service_id: '',
+    company_id: '',    // client-side (via edit.service.company.id)
+  });
+
   const [page, setPage] = useState(1);
   const [perPage, setPerPage] = useState(15);
   const [meta, setMeta] = useState({ current_page: 1, last_page: 1, total: 0, per_page: 15 });
@@ -32,7 +50,11 @@ export default function Edits() {
 
   const load = () => {
     const p = new URLSearchParams();
-    Object.entries(filters).forEach(([k,v]) => v && p.append(k,v));
+    if (filters.search) p.append('search', filters.search);
+    if (filters.status) p.append('status', filters.status);
+    if (filters.priority) p.append('priority', filters.priority);
+    if (filters.client_id) p.append('client_id', filters.client_id);
+    if (filters.service_id) p.append('service_id', filters.service_id);
     p.append('page', page);
     p.append('per_page', perPage);
     api.get(`/edits?${p}`).then(r => {
@@ -52,7 +74,24 @@ export default function Edits() {
   useEffect(() => {
     api.get('/clients?per_page=1000').then(r => setClients(r.data.data));
     api.get('/services?per_page=1000').then(r => setServices(r.data.data));
+    api.get('/companies?per_page=1000').then(r => setCompanies(r.data.data));
   }, []);
+
+  // Client-side: payment + company filters applied on top of server results
+  const visible = useMemo(() => {
+    return edits.filter(e => {
+      if (filters.payment) {
+        if (filters.payment === 'free' && e.payment != null) return false;
+        if (filters.payment === 'paid' && !(e.payment != null && e.is_paid)) return false;
+        if (filters.payment === 'unpaid' && !(e.payment != null && !e.is_paid)) return false;
+      }
+      if (filters.company_id) {
+        const cid = e.service?.company?.id ?? e.service?.company_id;
+        if (String(cid) !== String(filters.company_id)) return false;
+      }
+      return true;
+    });
+  }, [edits, filters.payment, filters.company_id]);
 
   const openCreate = () => { setEditing(null); setForm(empty); setModalOpen(true); };
   const openEdit = (e) => {
@@ -95,6 +134,20 @@ export default function Edits() {
     finally { setUploading(false); }
   };
 
+  const servicesFilteredByCompany = filters.company_id
+    ? services.filter(s => String(s.company?.id ?? s.company_id) === String(filters.company_id))
+    : services;
+
+  const resetFilters = () => {
+    setFilters({
+      search: '', status: '', priority: '', payment: '',
+      client_id: '', service_id: '', company_id: '',
+    });
+    setPage(1);
+  };
+
+  const hasAnyFilter = Object.values(filters).some(v => v);
+
   return (
     <>
       <div className="page-header">
@@ -103,24 +156,42 @@ export default function Edits() {
       </div>
 
       <div className="toolbar">
-        <input className="input" placeholder="Search title..." style={{ maxWidth: 220 }}
+        <input className="input" placeholder="Search title..." style={{ maxWidth: 200 }}
           value={filters.search}
           onChange={e => setFilters({ ...filters, search: e.target.value })} />
-        <select className="input" style={{ maxWidth: 160 }} value={filters.status}
+        <select className="input" style={{ maxWidth: 150 }} value={filters.status}
           onChange={e => setFilters({ ...filters, status: e.target.value })}>
           <option value="">All Statuses</option>
           {['pending','approved','in_progress','done','cancelled'].map(s =>
             <option key={s}>{s}</option>)}
         </select>
-        <select className="input" style={{ maxWidth: 160 }} value={filters.priority}
+        <select className="input" style={{ maxWidth: 150 }} value={filters.priority}
           onChange={e => setFilters({ ...filters, priority: e.target.value })}>
           <option value="">All Priorities</option>
           {['High','Medium','Low'].map(p => <option key={p}>{p}</option>)}
         </select>
-        <select className="input" style={{ maxWidth: 260 }} value={filters.service_id}
+        <select className="input" style={{ maxWidth: 170 }} value={filters.payment}
+          onChange={e => setFilters({ ...filters, payment: e.target.value })}>
+          {PAYMENT_OPTIONS.map(o => (
+            <option key={o.value} value={o.value}>{o.label}</option>
+          ))}
+        </select>
+        <select className="input" style={{ maxWidth: 180 }} value={filters.client_id}
+          onChange={e => setFilters({ ...filters, client_id: e.target.value, service_id: '' })}>
+          <option value="">All Clients</option>
+          {clients.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+        </select>
+        <select className="input" style={{ maxWidth: 220 }} value={filters.company_id}
+          onChange={e => setFilters({ ...filters, company_id: e.target.value, service_id: '' })}>
+          <option value="">All Companies</option>
+          {companies.map(c => (
+            <option key={c.id} value={c.id}>{c.name} — {c.client?.name}</option>
+          ))}
+        </select>
+        <select className="input" style={{ maxWidth: 220 }} value={filters.service_id}
           onChange={e => setFilters({ ...filters, service_id: e.target.value })}>
           <option value="">All Services</option>
-          {services.map(s => (
+          {servicesFilteredByCompany.map(s => (
             <option key={s.id} value={s.id}>{s.name} — {s.company?.name}</option>
           ))}
         </select>
@@ -130,25 +201,29 @@ export default function Edits() {
             <option key={n} value={n}>{n} / page</option>
           ))}
         </select>
+        {hasAnyFilter && (
+          <button className="btn btn-ghost" onClick={resetFilters}>Reset</button>
+        )}
       </div>
 
       <table className="table">
         <thead>
           <tr>
-            <th>Title</th><th>Client</th><th>Service</th><th>Status</th><th>Priority</th>
-            <th>Due</th><th>Payment</th><th>Files</th><th></th>
+            <th>Title</th><th>Client</th><th>Company</th><th>Service</th>
+            <th>Status</th><th>Priority</th><th>Due</th><th>Payment</th><th>Files</th><th></th>
           </tr>
         </thead>
         <tbody>
-          {edits.map(e => (
+          {visible.map(e => (
             <tr key={e.id}>
               <td>{e.title}</td>
               <td>{e.client?.name}</td>
+              <td>{e.service?.company?.name}</td>
               <td>{e.service?.name}</td>
               <td><span className={`badge badge-${e.status}`}>{e.status}</span></td>
               <td><span className={`badge badge-${e.priority}`}>{e.priority}</span></td>
               <td>{fmtDate(e.due_date)}</td>
-              <td>{e.payment ? `$${e.payment} ${e.is_paid ? '✅' : '⏳'}` : '-'}</td>
+              <td>{e.payment ? `$${e.payment} ${e.is_paid ? '✅' : '⏳'}` : 'Free'}</td>
               <td>{e.attachments_count}</td>
               <td style={{ textAlign:'right', whiteSpace:'nowrap' }}>
                 <button className="btn btn-ghost" onClick={() => setUploadEdit(e)}>📎</button>{' '}
@@ -157,10 +232,10 @@ export default function Edits() {
               </td>
             </tr>
           ))}
-          {edits.length === 0 && (
+          {visible.length === 0 && (
             <tr>
-              <td colSpan={9} className="empty-row">
-                No edits found.
+              <td colSpan={10} className="empty-row">
+                {edits.length === 0 ? 'No edits found.' : 'No edits match the current filters.'}
               </td>
             </tr>
           )}
@@ -278,15 +353,10 @@ function Pagination({ meta, page, setPage }) {
 
   return (
     <div className="pagination">
-      <span className="pagination-info">
-        Showing {from}–{to} of {total}
-      </span>
+      <span className="pagination-info">Showing {from}–{to} of {total}</span>
       <div className="pagination-controls">
-        <button className="btn btn-ghost"
-          disabled={current_page <= 1}
-          onClick={() => setPage(current_page - 1)}>
-          ‹ Prev
-        </button>
+        <button className="btn btn-ghost" disabled={current_page <= 1}
+          onClick={() => setPage(current_page - 1)}>‹ Prev</button>
         {start > 1 && (
           <>
             <button className="btn btn-ghost" onClick={() => setPage(1)}>1</button>
@@ -296,9 +366,7 @@ function Pagination({ meta, page, setPage }) {
         {pages.map(n => (
           <button key={n}
             className={`btn ${n === current_page ? 'btn-primary' : 'btn-ghost'}`}
-            onClick={() => setPage(n)}>
-            {n}
-          </button>
+            onClick={() => setPage(n)}>{n}</button>
         ))}
         {end < last_page && (
           <>
@@ -306,11 +374,8 @@ function Pagination({ meta, page, setPage }) {
             <button className="btn btn-ghost" onClick={() => setPage(last_page)}>{last_page}</button>
           </>
         )}
-        <button className="btn btn-ghost"
-          disabled={current_page >= last_page}
-          onClick={() => setPage(current_page + 1)}>
-          Next ›
-        </button>
+        <button className="btn btn-ghost" disabled={current_page >= last_page}
+          onClick={() => setPage(current_page + 1)}>Next ›</button>
       </div>
     </div>
   );

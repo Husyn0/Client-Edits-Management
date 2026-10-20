@@ -8,6 +8,7 @@ export default function Services() {
   const [companies, setCompanies] = useState([]);
   const [search, setSearch] = useState('');
   const [companyFilter, setCompanyFilter] = useState('');
+  const [hasEditsFilter, setHasEditsFilter] = useState(''); // '' | 'yes' | 'no'
   const [page, setPage] = useState(1);
   const [perPage, setPerPage] = useState(15);
   const [meta, setMeta] = useState({ current_page: 1, last_page: 1, total: 0, per_page: 15 });
@@ -34,7 +35,7 @@ export default function Services() {
   };
 
   useEffect(() => { load(); }, [search, companyFilter, page, perPage]);
-  useEffect(() => { setPage(1); }, [search, companyFilter, perPage]);
+  useEffect(() => { setPage(1); }, [search, companyFilter, hasEditsFilter, perPage]);
   useEffect(() => { api.get('/companies?per_page=1000').then(r => setCompanies(r.data.data)); }, []);
 
   const openCreate = () => { setEditing(null); setForm(empty); setModalOpen(true); };
@@ -62,6 +63,19 @@ export default function Services() {
     await api.delete(`/services/${id}`); load();
   };
 
+  const visible = services.filter(s => {
+    if (hasEditsFilter === 'yes' && !(s.edits_count > 0)) return false;
+    if (hasEditsFilter === 'no' && (s.edits_count > 0)) return false;
+    return true;
+  });
+
+  const resetFilters = () => {
+    setSearch('');
+    setCompanyFilter('');
+    setHasEditsFilter('');
+    setPage(1);
+  };
+
   return (
     <>
       <div className="page-header">
@@ -70,14 +84,20 @@ export default function Services() {
       </div>
 
       <div className="toolbar">
-        <input className="input" style={{ maxWidth: 240 }} placeholder="Search services..."
+        <input className="input" style={{ maxWidth: 220 }} placeholder="Search services..."
           value={search} onChange={e => setSearch(e.target.value)} />
-        <select className="input" style={{ maxWidth: 280 }}
+        <select className="input" style={{ maxWidth: 260 }}
           value={companyFilter} onChange={e => setCompanyFilter(e.target.value)}>
           <option value="">All Companies</option>
           {companies.map(c => (
             <option key={c.id} value={c.id}>{c.name} — {c.client?.name}</option>
           ))}
+        </select>
+        <select className="input" style={{ maxWidth: 180 }}
+          value={hasEditsFilter} onChange={e => setHasEditsFilter(e.target.value)}>
+          <option value="">All edits</option>
+          <option value="yes">Has edits</option>
+          <option value="no">No edits</option>
         </select>
         <select className="input" style={{ maxWidth: 120 }}
           value={perPage} onChange={e => setPerPage(Number(e.target.value))}>
@@ -85,6 +105,9 @@ export default function Services() {
             <option key={n} value={n}>{n} / page</option>
           ))}
         </select>
+        {(search || companyFilter || hasEditsFilter) && (
+          <button className="btn btn-ghost" onClick={resetFilters}>Reset</button>
+        )}
       </div>
 
       <table className="table">
@@ -95,7 +118,7 @@ export default function Services() {
           </tr>
         </thead>
         <tbody>
-          {services.map(s => (
+          {visible.map(s => (
             <tr key={s.id}>
               <td>{s.name}</td>
               <td>{s.company?.name}</td>
@@ -108,10 +131,10 @@ export default function Services() {
               </td>
             </tr>
           ))}
-          {services.length === 0 && (
+          {visible.length === 0 && (
             <tr>
               <td colSpan={6} className="empty-row">
-                No services found.
+                {services.length === 0 ? 'No services found.' : 'No services match the current filters.'}
               </td>
             </tr>
           )}
@@ -179,15 +202,10 @@ function Pagination({ meta, page, setPage }) {
 
   return (
     <div className="pagination">
-      <span className="pagination-info">
-        Showing {from}–{to} of {total}
-      </span>
+      <span className="pagination-info">Showing {from}–{to} of {total}</span>
       <div className="pagination-controls">
-        <button className="btn btn-ghost"
-          disabled={current_page <= 1}
-          onClick={() => setPage(current_page - 1)}>
-          ‹ Prev
-        </button>
+        <button className="btn btn-ghost" disabled={current_page <= 1}
+          onClick={() => setPage(current_page - 1)}>‹ Prev</button>
         {start > 1 && (
           <>
             <button className="btn btn-ghost" onClick={() => setPage(1)}>1</button>
@@ -197,9 +215,7 @@ function Pagination({ meta, page, setPage }) {
         {pages.map(n => (
           <button key={n}
             className={`btn ${n === current_page ? 'btn-primary' : 'btn-ghost'}`}
-            onClick={() => setPage(n)}>
-            {n}
-          </button>
+            onClick={() => setPage(n)}>{n}</button>
         ))}
         {end < last_page && (
           <>
@@ -207,11 +223,8 @@ function Pagination({ meta, page, setPage }) {
             <button className="btn btn-ghost" onClick={() => setPage(last_page)}>{last_page}</button>
           </>
         )}
-        <button className="btn btn-ghost"
-          disabled={current_page >= last_page}
-          onClick={() => setPage(current_page + 1)}>
-          Next ›
-        </button>
+        <button className="btn btn-ghost" disabled={current_page >= last_page}
+          onClick={() => setPage(current_page + 1)}>Next ›</button>
       </div>
     </div>
   );
