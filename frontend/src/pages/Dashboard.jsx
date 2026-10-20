@@ -29,7 +29,7 @@ const PAYMENT_COLORS = {
 const PAYMENT_LABELS = {
   paid: 'Paid',
   unpaid: 'Unpaid',
-  no_payment: 'No payment',
+  no_payment: 'Free',
 };
 
 const FILE_TYPE_COLORS = [
@@ -116,7 +116,6 @@ export default function Dashboard() {
         if (dayMap[key]) dayMap[key].count += 1;
       });
 
-      // Attachments aggregates
       const by_file_type = attachments.reduce((acc, a) => {
         const bucket = bucketMime(a.mime_type);
         if (!acc[bucket]) acc[bucket] = { count: 0, size: 0 };
