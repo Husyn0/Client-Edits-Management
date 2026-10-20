@@ -3,6 +3,7 @@ import api from '../api/api';
 
 export default function Attachments() {
   const [files, setFiles] = useState([]);
+  const [search, setSearch] = useState('');
 
   const load = () => api.get('/attachments').then(r => setFiles(r.data.data));
   useEffect(() => { load(); }, []);
@@ -30,9 +31,32 @@ export default function Attachments() {
     return `${(b/1048576).toFixed(1)} MB`;
   };
 
+  const q = search.trim().toLowerCase();
+  const filtered = q
+    ? files.filter(f => {
+        const haystack = [
+          f.original_name,
+          f.mime_type,
+          f.edit?.title,
+          f.edit?.client?.name,
+          f.edit?.service?.name,
+        ]
+          .filter(Boolean)
+          .join(' ')
+          .toLowerCase();
+        return haystack.includes(q);
+      })
+    : files;
+
   return (
     <>
       <div className="page-header"><h1>Attachments</h1></div>
+
+      <input className="input" style={{ maxWidth: 320, marginBottom: 16 }}
+        placeholder="Search by file, edit, client, service..."
+        value={search}
+        onChange={e => setSearch(e.target.value)} />
+
       <table className="table">
         <thead>
           <tr>
@@ -41,7 +65,7 @@ export default function Attachments() {
           </tr>
         </thead>
         <tbody>
-          {files.map(f => (
+          {filtered.map(f => (
             <tr key={f.id}>
               <td>{f.original_name}</td>
               <td>{f.edit?.title}</td>
@@ -57,6 +81,13 @@ export default function Attachments() {
               </td>
             </tr>
           ))}
+          {filtered.length === 0 && (
+            <tr>
+              <td colSpan={8} style={{ textAlign: 'center', color: '#64748b', padding: 24 }}>
+                {q ? 'No attachments match your search.' : 'No attachments yet.'}
+              </td>
+            </tr>
+          )}
         </tbody>
       </table>
     </>
