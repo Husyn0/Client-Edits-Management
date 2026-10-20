@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import api from '../api/api';
 
-const empty = { name:'', phone:'', email:'', company_name:'', service:'', last_contact_followup:'' };
+const empty = { name:'', phone:'', email:'', last_contact_followup:'' };
 
 export default function Clients() {
   const [clients, setClients] = useState([]);
@@ -25,7 +25,7 @@ export default function Clients() {
   };
 
   const remove = async (id) => {
-    if (!confirm('Delete this client?')) return;
+    if (!confirm('Delete this client? This will cascade to companies, services, edits, and attachments.')) return;
     await api.delete(`/clients/${id}`); load();
   };
 
@@ -43,20 +43,19 @@ export default function Clients() {
       <table className="table">
         <thead>
           <tr>
-            <th>Name</th><th>Company</th><th>Email</th><th>Phone</th>
-            <th>Service</th><th>Last Contact</th><th>Edits</th><th></th>
+            <th>Name</th><th>Email</th><th>Phone</th>
+            <th>Last Contact</th><th>Edits</th><th>Companies</th><th></th>
           </tr>
         </thead>
         <tbody>
           {clients.map(c => (
             <tr key={c.id}>
               <td>{c.name}</td>
-              <td>{c.company_name}</td>
               <td>{c.email}</td>
               <td>{c.phone}</td>
-              <td>{c.service}</td>
               <td>{c.last_contact_followup || '-'}</td>
-              <td>{c.edits_count}</td>
+              <td>{c.edits_count ?? 0}</td>
+              <td>{c.companies_count ?? 0}</td>
               <td style={{ textAlign:'right' }}>
                 <button className="btn btn-ghost" onClick={() => openEdit(c)}>Edit</button>{' '}
                 <button className="btn btn-danger" onClick={() => remove(c.id)}>Del</button>
@@ -71,7 +70,7 @@ export default function Clients() {
           <div className="modal" onClick={e => e.stopPropagation()}>
             <h2 style={{ marginBottom: 16 }}>{editing ? 'Edit' : 'New'} Client</h2>
             <form onSubmit={save}>
-              {['name','phone','email','company_name','service'].map(f => (
+              {['name','phone','email'].map(f => (
                 <div className="form-group" key={f}>
                   <label>{f.replace('_',' ')}</label>
                   <input className="input" value={form[f] || ''}

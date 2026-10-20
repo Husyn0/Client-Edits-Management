@@ -5,12 +5,15 @@ import {
   HiMenuAlt2, HiX, HiChevronLeft, HiChevronRight,
 } from 'react-icons/hi';
 import {
-  HiOutlineViewGrid, HiOutlineUsers, HiOutlinePencilAlt, HiOutlinePaperClip,
+  HiOutlineViewGrid, HiOutlineUsers, HiOutlineOfficeBuilding,
+  HiOutlineCube, HiOutlinePencilAlt, HiOutlinePaperClip,
 } from 'react-icons/hi';
 
 const NAV = [
   { to: '/', label: 'Dashboard', icon: HiOutlineViewGrid, end: true },
   { to: '/clients', label: 'Clients', icon: HiOutlineUsers },
+  { to: '/companies', label: 'Companies', icon: HiOutlineOfficeBuilding },
+  { to: '/services', label: 'Services', icon: HiOutlineCube },
   { to: '/edits', label: 'Edits', icon: HiOutlinePencilAlt },
   { to: '/attachments', label: 'Attachments', icon: HiOutlinePaperClip },
 ];

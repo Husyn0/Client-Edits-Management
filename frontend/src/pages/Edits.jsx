@@ -2,23 +2,24 @@ import { useEffect, useState } from 'react';
 import api from '../api/api';
 
 const empty = {
-  client_id:'', title:'', description:'', due_date:'',
+  client_id:'', service_id:'', title:'', description:'', due_date:'',
   priority:'Medium', payment:'', is_paid:false, status:'pending'
 };
+
 const fmtDate = (v) => {
   if (!v) return '-';
   const d = new Date(String(v).slice(0, 10) + 'T00:00:00');
   if (Number.isNaN(d.getTime())) return '-';
   return d.toLocaleDateString(undefined, {
-    day: '2-digit',
-    month: 'short',
-    year: 'numeric',
+    day: '2-digit', month: 'short', year: 'numeric',
   });
 };
+
 export default function Edits() {
   const [edits, setEdits] = useState([]);
   const [clients, setClients] = useState([]);
-  const [filters, setFilters] = useState({ status:'', priority:'', search:'' });
+  const [services, setServices] = useState([]);
+  const [filters, setFilters] = useState({ status:'', priority:'', search:'', service_id:'' });
   const [modalOpen, setModalOpen] = useState(false);
   const [editing, setEditing] = useState(null);
   const [form, setForm] = useState(empty);
@@ -32,14 +33,38 @@ export default function Edits() {
   };
 
   useEffect(() => { load(); }, [filters]);
-  useEffect(() => { api.get('/clients').then(r => setClients(r.data.data)); }, []);
+  useEffect(() => {
+    api.get('/clients?per_page=1000').then(r => setClients(r.data.data));
+    api.get('/services?per_page=1000').then(r => setServices(r.data.data));
+  }, []);
+
+  // Services filtered by selected client's companies
+  const servicesForClient = form.client_id
+    ? services.filter(s => {
+        const client = clients.find(c => String(c.id) === String(form.client_id));
+        return true; // backend will validate; keep all services
+      })
+    : services;
 
   const openCreate = () => { setEditing(null); setForm(empty); setModalOpen(true); };
-  const openEdit = (e) => { setEditing(e); setForm({ ...e, client_id: e.client_id }); setModalOpen(true); };
+  const openEdit = (e) => {
+    setEditing(e);
+    setForm({
+      ...empty,
+      ...e,
+      client_id: e.client_id ?? e.client?.id ?? '',
+      service_id: e.service_id ?? e.service?.id ?? '',
+    });
+    setModalOpen(true);
+  };
 
   const save = async (ev) => {
     ev.preventDefault();
-    const payload = { ...form, payment: form.payment || null, due_date: form.due_date || null };
+    const payload = {
+      ...form,
+      payment: form.payment === '' || form.payment == null ? null : form.payment,
+      due_date: form.due_date || null,
+    };
     if (editing) await api.put(`/edits/${editing.id}`, payload);
     else await api.post('/edits', payload);
     setModalOpen(false); load();
@@ -69,8 +94,8 @@ export default function Edits() {
         <button className="btn btn-primary" onClick={openCreate}>+ New Edit</button>
       </div>
 
-      <div style={{ display:'flex', gap: 8, marginBottom: 16 }}>
-        <input className="input" placeholder="Search title..." style={{ maxWidth: 240 }}
+      <div style={{ display:'flex', gap: 8, marginBottom: 16, flexWrap:'wrap' }}>
+        <input className="input" placeholder="Search title..." style={{ maxWidth: 220 }}
           value={filters.search}
           onChange={e => setFilters({ ...filters, search: e.target.value })} />
         <select className="input" style={{ maxWidth: 160 }} value={filters.status}
@@ -84,12 +109,19 @@ export default function Edits() {
           <option value="">All Priorities</option>
           {['High','Medium','Low'].map(p => <option key={p}>{p}</option>)}
         </select>
+        <select className="input" style={{ maxWidth: 260 }} value={filters.service_id}
+          onChange={e => setFilters({ ...filters, service_id: e.target.value })}>
+          <option value="">All Services</option>
+          {services.map(s => (
+            <option key={s.id} value={s.id}>{s.name} — {s.company?.name}</option>
+          ))}
+        </select>
       </div>
 
       <table className="table">
         <thead>
           <tr>
-            <th>Title</th><th>Client</th><th>Status</th><th>Priority</th>
+            <th>Title</th><th>Client</th><th>Service</th><th>Status</th><th>Priority</th>
             <th>Due</th><th>Payment</th><th>Files</th><th></th>
           </tr>
         </thead>
@@ -98,6 +130,7 @@ export default function Edits() {
             <tr key={e.id}>
               <td>{e.title}</td>
               <td>{e.client?.name}</td>
+              <td>{e.service?.name}</td>
               <td><span className={`badge badge-${e.status}`}>{e.status}</span></td>
               <td><span className={`badge badge-${e.priority}`}>{e.priority}</span></td>
               <td>{fmtDate(e.due_date)}</td>
@@ -123,7 +156,19 @@ export default function Edits() {
                 <select className="input" value={form.client_id} required
                   onChange={e => setForm({ ...form, client_id: e.target.value })}>
                   <option value="">Select...</option>
-                  {clients.map(c => <option key={c.id} value={c.id}>{c.name} — {c.company_name}</option>)}
+                  {clients.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+                </select>
+              </div>
+              <div className="form-group">
+                <label>Service</label>
+                <select className="input" value={form.service_id} required
+                  onChange={e => setForm({ ...form, service_id: e.target.value })}>
+                  <option value="">Select...</option>
+                  {servicesForClient.map(s => (
+                    <option key={s.id} value={s.id}>
+                      {s.name} — {s.company?.name}
+                    </option>
+                  ))}
                 </select>
               </div>
               <div className="form-group">

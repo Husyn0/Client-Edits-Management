@@ -35,7 +35,10 @@ export default function Attachments() {
       <div className="page-header"><h1>Attachments</h1></div>
       <table className="table">
         <thead>
-          <tr><th>File</th><th>Edit</th><th>Client</th><th>Type</th><th>Size</th><th>Uploaded</th><th></th></tr>
+          <tr>
+            <th>File</th><th>Edit</th><th>Client</th><th>Service</th>
+            <th>Type</th><th>Size</th><th>Uploaded</th><th></th>
+          </tr>
         </thead>
         <tbody>
           {files.map(f => (
@@ -43,6 +46,7 @@ export default function Attachments() {
               <td>{f.original_name}</td>
               <td>{f.edit?.title}</td>
               <td>{f.edit?.client?.name}</td>
+              <td>{f.edit?.service?.name}</td>
               <td>{f.mime_type}</td>
               <td>{fmtSize(f.size)}</td>
               <td>{new Date(f.created_at).toLocaleDateString()}</td>

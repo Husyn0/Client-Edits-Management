@@ -3,6 +3,8 @@ import { AuthProvider, useAuth } from './context/AuthContext';
 import Layout from './components/Layout';
 import Dashboard from './pages/Dashboard';
 import Clients from './pages/Clients';
+import Companies from './pages/Companies';
+import Services from './pages/Services';
 import Edits from './pages/Edits';
 import Attachments from './pages/Attachments';
 import Auth from './pages/Auth';
@@ -31,6 +33,8 @@ export default function App() {
           <Route element={<Protected><Layout /></Protected>}>
             <Route path="/" element={<Dashboard />} />
             <Route path="/clients" element={<Clients />} />
+            <Route path="/companies" element={<Companies />} />
+            <Route path="/services" element={<Services />} />
             <Route path="/edits" element={<Edits />} />
             <Route path="/attachments" element={<Attachments />} />
           </Route>

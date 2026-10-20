@@ -212,6 +212,14 @@ export default function Dashboard() {
           <div className="stat-value">{stats.total_clients}</div>
         </div>
         <div className="card stat-card">
+          <div className="stat-label">Companies</div>
+          <div className="stat-value">{stats.total_companies ?? 0}</div>
+        </div>
+        <div className="card stat-card">
+          <div className="stat-label">Services</div>
+          <div className="stat-value">{stats.total_services ?? 0}</div>
+        </div>
+        <div className="card stat-card">
           <div className="stat-label">Total Edits</div>
           <div className="stat-value">{stats.total_edits}</div>
         </div>
