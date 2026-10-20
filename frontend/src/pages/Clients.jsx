@@ -6,13 +6,34 @@ const empty = { name:'', phone:'', email:'', last_contact_followup:'' };
 export default function Clients() {
   const [clients, setClients] = useState([]);
   const [search, setSearch] = useState('');
+  const [page, setPage] = useState(1);
+  const [perPage, setPerPage] = useState(15);
+  const [meta, setMeta] = useState({ current_page: 1, last_page: 1, total: 0, per_page: 15 });
+
   const [modalOpen, setModalOpen] = useState(false);
   const [editing, setEditing] = useState(null);
   const [form, setForm] = useState(empty);
 
-  const load = () => api.get(`/clients?search=${search}`).then(r => setClients(r.data.data));
+  const load = () => {
+    const p = new URLSearchParams();
+    if (search) p.append('search', search);
+    p.append('page', page);
+    p.append('per_page', perPage);
+    api.get(`/clients?${p}`).then(r => {
+      setClients(r.data.data);
+      setMeta({
+        current_page: r.data.current_page ?? 1,
+        last_page: r.data.last_page ?? 1,
+        total: r.data.total ?? r.data.data.length,
+        per_page: r.data.per_page ?? perPage,
+      });
+    });
+  };
 
-  useEffect(() => { load(); }, [search]);
+  useEffect(() => { load(); }, [search, page, perPage]);
+
+  // Reset to page 1 on search / page-size change
+  useEffect(() => { setPage(1); }, [search, perPage]);
 
   const openCreate = () => { setEditing(null); setForm(empty); setModalOpen(true); };
   const openEdit = (c) => { setEditing(c); setForm({ ...c }); setModalOpen(true); };
@@ -36,9 +57,17 @@ export default function Clients() {
         <button className="btn btn-primary" onClick={openCreate}>+ New Client</button>
       </div>
 
-      <input className="input" style={{ maxWidth: 320, marginBottom: 16 }}
-        placeholder="Search clients..." value={search}
-        onChange={e => setSearch(e.target.value)} />
+      <div className="toolbar">
+        <input className="input" style={{ maxWidth: 320 }}
+          placeholder="Search clients..." value={search}
+          onChange={e => setSearch(e.target.value)} />
+        <select className="input" style={{ maxWidth: 120 }}
+          value={perPage} onChange={e => setPerPage(Number(e.target.value))}>
+          {[10, 15, 25, 50, 100].map(n => (
+            <option key={n} value={n}>{n} / page</option>
+          ))}
+        </select>
+      </div>
 
       <table className="table">
         <thead>
@@ -62,8 +91,17 @@ export default function Clients() {
               </td>
             </tr>
           ))}
+          {clients.length === 0 && (
+            <tr>
+              <td colSpan={7} className="empty-row">
+                No clients found.
+              </td>
+            </tr>
+          )}
         </tbody>
       </table>
+
+      <Pagination meta={meta} page={page} setPage={setPage} />
 
       {modalOpen && (
         <div className="modal-backdrop" onClick={() => setModalOpen(false)}>
@@ -92,5 +130,59 @@ export default function Clients() {
         </div>
       )}
     </>
+  );
+}
+
+function Pagination({ meta, page, setPage }) {
+  const { last_page, total, per_page, current_page } = meta;
+  if (!total) return null;
+
+  const from = (current_page - 1) * per_page + 1;
+  const to = Math.min(current_page * per_page, total);
+
+  const pages = [];
+  const maxButtons = 5;
+  let start = Math.max(1, current_page - Math.floor(maxButtons / 2));
+  let end = Math.min(last_page, start + maxButtons - 1);
+  start = Math.max(1, end - maxButtons + 1);
+  for (let i = start; i <= end; i++) pages.push(i);
+
+  return (
+    <div className="pagination">
+      <span className="pagination-info">
+        Showing {from}–{to} of {total}
+      </span>
+      <div className="pagination-controls">
+        <button className="btn btn-ghost"
+          disabled={current_page <= 1}
+          onClick={() => setPage(current_page - 1)}>
+          ‹ Prev
+        </button>
+        {start > 1 && (
+          <>
+            <button className="btn btn-ghost" onClick={() => setPage(1)}>1</button>
+            {start > 2 && <span className="pagination-ellipsis">…</span>}
+          </>
+        )}
+        {pages.map(n => (
+          <button key={n}
+            className={`btn ${n === current_page ? 'btn-primary' : 'btn-ghost'}`}
+            onClick={() => setPage(n)}>
+            {n}
+          </button>
+        ))}
+        {end < last_page && (
+          <>
+            {end < last_page - 1 && <span className="pagination-ellipsis">…</span>}
+            <button className="btn btn-ghost" onClick={() => setPage(last_page)}>{last_page}</button>
+          </>
+        )}
+        <button className="btn btn-ghost"
+          disabled={current_page >= last_page}
+          onClick={() => setPage(current_page + 1)}>
+          Next ›
+        </button>
+      </div>
+    </div>
   );
 }

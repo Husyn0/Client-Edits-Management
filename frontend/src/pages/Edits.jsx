@@ -20,6 +20,10 @@ export default function Edits() {
   const [clients, setClients] = useState([]);
   const [services, setServices] = useState([]);
   const [filters, setFilters] = useState({ status:'', priority:'', search:'', service_id:'' });
+  const [page, setPage] = useState(1);
+  const [perPage, setPerPage] = useState(15);
+  const [meta, setMeta] = useState({ current_page: 1, last_page: 1, total: 0, per_page: 15 });
+
   const [modalOpen, setModalOpen] = useState(false);
   const [editing, setEditing] = useState(null);
   const [form, setForm] = useState(empty);
@@ -29,22 +33,26 @@ export default function Edits() {
   const load = () => {
     const p = new URLSearchParams();
     Object.entries(filters).forEach(([k,v]) => v && p.append(k,v));
-    api.get(`/edits?${p}`).then(r => setEdits(r.data.data));
+    p.append('page', page);
+    p.append('per_page', perPage);
+    api.get(`/edits?${p}`).then(r => {
+      setEdits(r.data.data);
+      setMeta({
+        current_page: r.data.current_page ?? 1,
+        last_page: r.data.last_page ?? 1,
+        total: r.data.total ?? r.data.data.length,
+        per_page: r.data.per_page ?? perPage,
+      });
+    });
   };
 
-  useEffect(() => { load(); }, [filters]);
+  useEffect(() => { load(); }, [filters, page, perPage]);
+  useEffect(() => { setPage(1); }, [filters, perPage]);
+
   useEffect(() => {
     api.get('/clients?per_page=1000').then(r => setClients(r.data.data));
     api.get('/services?per_page=1000').then(r => setServices(r.data.data));
   }, []);
-
-  // Services filtered by selected client's companies
-  const servicesForClient = form.client_id
-    ? services.filter(s => {
-        const client = clients.find(c => String(c.id) === String(form.client_id));
-        return true; // backend will validate; keep all services
-      })
-    : services;
 
   const openCreate = () => { setEditing(null); setForm(empty); setModalOpen(true); };
   const openEdit = (e) => {
@@ -94,7 +102,7 @@ export default function Edits() {
         <button className="btn btn-primary" onClick={openCreate}>+ New Edit</button>
       </div>
 
-      <div style={{ display:'flex', gap: 8, marginBottom: 16, flexWrap:'wrap' }}>
+      <div className="toolbar">
         <input className="input" placeholder="Search title..." style={{ maxWidth: 220 }}
           value={filters.search}
           onChange={e => setFilters({ ...filters, search: e.target.value })} />
@@ -114,6 +122,12 @@ export default function Edits() {
           <option value="">All Services</option>
           {services.map(s => (
             <option key={s.id} value={s.id}>{s.name} — {s.company?.name}</option>
+          ))}
+        </select>
+        <select className="input" style={{ maxWidth: 120 }}
+          value={perPage} onChange={e => setPerPage(Number(e.target.value))}>
+          {[10, 15, 25, 50, 100].map(n => (
+            <option key={n} value={n}>{n} / page</option>
           ))}
         </select>
       </div>
@@ -143,8 +157,17 @@ export default function Edits() {
               </td>
             </tr>
           ))}
+          {edits.length === 0 && (
+            <tr>
+              <td colSpan={9} className="empty-row">
+                No edits found.
+              </td>
+            </tr>
+          )}
         </tbody>
       </table>
+
+      <Pagination meta={meta} page={page} setPage={setPage} />
 
       {modalOpen && (
         <div className="modal-backdrop" onClick={() => setModalOpen(false)}>
@@ -164,7 +187,7 @@ export default function Edits() {
                 <select className="input" value={form.service_id} required
                   onChange={e => setForm({ ...form, service_id: e.target.value })}>
                   <option value="">Select...</option>
-                  {servicesForClient.map(s => (
+                  {services.map(s => (
                     <option key={s.id} value={s.id}>
                       {s.name} — {s.company?.name}
                     </option>
@@ -236,5 +259,59 @@ export default function Edits() {
         </div>
       )}
     </>
+  );
+}
+
+function Pagination({ meta, page, setPage }) {
+  const { last_page, total, per_page, current_page } = meta;
+  if (!total) return null;
+
+  const from = (current_page - 1) * per_page + 1;
+  const to = Math.min(current_page * per_page, total);
+
+  const pages = [];
+  const maxButtons = 5;
+  let start = Math.max(1, current_page - Math.floor(maxButtons / 2));
+  let end = Math.min(last_page, start + maxButtons - 1);
+  start = Math.max(1, end - maxButtons + 1);
+  for (let i = start; i <= end; i++) pages.push(i);
+
+  return (
+    <div className="pagination">
+      <span className="pagination-info">
+        Showing {from}–{to} of {total}
+      </span>
+      <div className="pagination-controls">
+        <button className="btn btn-ghost"
+          disabled={current_page <= 1}
+          onClick={() => setPage(current_page - 1)}>
+          ‹ Prev
+        </button>
+        {start > 1 && (
+          <>
+            <button className="btn btn-ghost" onClick={() => setPage(1)}>1</button>
+            {start > 2 && <span className="pagination-ellipsis">…</span>}
+          </>
+        )}
+        {pages.map(n => (
+          <button key={n}
+            className={`btn ${n === current_page ? 'btn-primary' : 'btn-ghost'}`}
+            onClick={() => setPage(n)}>
+            {n}
+          </button>
+        ))}
+        {end < last_page && (
+          <>
+            {end < last_page - 1 && <span className="pagination-ellipsis">…</span>}
+            <button className="btn btn-ghost" onClick={() => setPage(last_page)}>{last_page}</button>
+          </>
+        )}
+        <button className="btn btn-ghost"
+          disabled={current_page >= last_page}
+          onClick={() => setPage(current_page + 1)}>
+          Next ›
+        </button>
+      </div>
+    </div>
   );
 }
