@@ -28,4 +28,29 @@ return Application::configure(basePath: dirname(__DIR__))
         $exceptions->shouldRenderJsonWhen(
             fn (Request $request) => $request->is('api/*') || $request->expectsJson(),
         );
+
+        // 404 on a bound model → clear JSON instead of the Laravel "No query results" blob
+        $exceptions->render(function (
+            \Illuminate\Database\Eloquent\ModelNotFoundException $e,
+            Request $request
+        ) {
+            if ($request->is('api/*') || $request->expectsJson()) {
+                $model = class_basename($e->getModel());
+                return response()->json([
+                    'message' => "$model not found",
+                ], 404);
+            }
+        });
+
+        // 404 on unknown api route
+        $exceptions->render(function (
+            \Symfony\Component\HttpKernel\Exception\NotFoundHttpException $e,
+            Request $request
+        ) {
+            if ($request->is('api/*') || $request->expectsJson()) {
+                return response()->json([
+                    'message' => 'Resource not found',
+                ], 404);
+            }
+        });
     })->create();

@@ -7,13 +7,18 @@ use Illuminate\Http\Request;
 class ClientController extends Controller {
     public function index(Request $request) {
         $q = Client::withCount('edits');
+
         if ($search = $request->query('search')) {
             $q->where(function ($w) use ($search) {
-                $w->where('name','like',"%$search%")
-                  ->orWhere('company_name','like',"%$search%")
-                  ->orWhere('email','like',"%$search%");
+                $w->where('name', 'like', "%$search%")
+                  ->orWhere('email', 'like', "%$search%")
+                  ->orWhereHas('companies', fn ($c) =>
+                        $c->where('name', 'like', "%$search%"))
+                  ->orWhereHas('companies.services', fn ($s) =>
+                        $s->where('name', 'like', "%$search%"));
             });
         }
+
         return $q->latest()->paginate(15);
     }
 
@@ -26,6 +31,7 @@ class ClientController extends Controller {
         ]);
         return Client::create($data);
     }
+
     public function show(Client $client) {
         return $client->load('companies.services', 'edits.attachments');
     }
