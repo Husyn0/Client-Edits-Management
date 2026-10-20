@@ -1,24 +1,19 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-// import '../styles/auth.scss';
 
 export default function Auth() {
-  const [mode, setMode] = useState('login');
-  const [form, setForm] = useState({
-    name: '', email: '', password: '', password_confirmation: ''
-  });
+  const [form, setForm] = useState({ email: '', password: '' });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  const { login, register } = useAuth();
+  const { login } = useAuth();
   const navigate = useNavigate();
 
   const submit = async (e) => {
     e.preventDefault();
     setError(''); setLoading(true);
     try {
-      if (mode === 'login') await login(form.email, form.password);
-      else await register(form);
+      await login(form.email, form.password);
       navigate('/');
     } catch (err) {
       setError(err.response?.data?.message
@@ -28,11 +23,6 @@ export default function Auth() {
   };
 
   const update = (k, v) => setForm(f => ({ ...f, [k]: v }));
-
-  const switchMode = () => {
-    setMode(mode === 'login' ? 'register' : 'login');
-    setError('');
-  };
 
   return (
     <div className="auth-page">
@@ -78,28 +68,14 @@ export default function Auth() {
       {/* ---------- RIGHT: form ---------- */}
       <main className="auth-form-side">
         <div className="auth-card">
-          <h1>{mode === 'login' ? 'Welcome back' : 'Create your account'}</h1>
+          <h1>Welcome back</h1>
           <p className="subtitle">
-            {mode === 'login'
-              ? 'Sign in to continue to your workspace.'
-              : 'Start managing your clients and edits in minutes.'}
+            Sign in to continue to your workspace.
           </p>
 
           {error && <div className="error-box">{error}</div>}
 
           <form onSubmit={submit}>
-            {mode === 'register' && (
-              <div className="form-group">
-                <label>Name</label>
-                <input
-                  className="input"
-                  placeholder="John Doe"
-                  value={form.name}
-                  onChange={e => update('name', e.target.value)}
-                  required
-                />
-              </div>
-            )}
             <div className="form-group">
               <label>Email</label>
               <input
@@ -122,30 +98,10 @@ export default function Auth() {
                 required
               />
             </div>
-            {mode === 'register' && (
-              <div className="form-group">
-                <label>Confirm Password</label>
-                <input
-                  className="input"
-                  type="password"
-                  placeholder="••••••••"
-                  value={form.password_confirmation}
-                  onChange={e => update('password_confirmation', e.target.value)}
-                  required
-                />
-              </div>
-            )}
             <button className="btn btn-primary full" disabled={loading}>
-              {loading ? 'Please wait…' : (mode === 'login' ? 'Sign In' : 'Create Account')}
+              {loading ? 'Please wait…' : 'Sign In'}
             </button>
           </form>
-
-          <div className="switch-mode">
-            {mode === 'login' ? "Don't have an account?" : "Already have an account?"}
-            <a onClick={switchMode}>
-              {mode === 'login' ? 'Register' : 'Sign In'}
-            </a>
-          </div>
         </div>
       </main>
 
