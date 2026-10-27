@@ -18,6 +18,7 @@ export default function Clients() {
   const [modalOpen, setModalOpen] = useState(false);
   const [editing, setEditing] = useState(null);
   const [form, setForm] = useState(empty);
+  const [contactingId, setContactingId] = useState(null);
 
   const load = () => {
     const p = new URLSearchParams();
@@ -50,6 +51,27 @@ export default function Clients() {
     if (editing) await api.put(`/clients/${editing.id}`, form);
     else await api.post('/clients', form);
     setModalOpen(false); load();
+  };
+
+  const markLastContact = async (client) => {
+    const now = new Date();
+    const today = [
+      now.getFullYear(),
+      String(now.getMonth() + 1).padStart(2, '0'),
+      String(now.getDate()).padStart(2, '0'),
+    ].join('-');
+
+    setContactingId(client.id);
+    try {
+      await api.patch(`/clients/${client.id}`, { last_contact_followup: today });
+      setClients(current => current.map(c =>
+        c.id === client.id ? { ...c, last_contact_followup: today } : c
+      ));
+    } catch {
+      alert('Could not update the last contact date. Please try again.');
+    } finally {
+      setContactingId(null);
+    }
   };
 
   const remove = async (id) => {
@@ -135,6 +157,10 @@ export default function Clients() {
               <td>{c.edits_count ?? 0}</td>
               <td>{c.companies_count ?? 0}</td>
               <td style={{ textAlign:'right' }}>
+                <button className="btn btn-ghost" disabled={contactingId === c.id}
+                  onClick={() => markLastContact(c)}>
+                  {contactingId === c.id ? 'Updating...' : 'Last contact'}
+                </button>{' '}
                 <button className="btn btn-ghost" onClick={() => openEdit(c)}>Edit</button>{' '}
                 <button className="btn btn-danger" onClick={() => remove(c.id)}>Del</button>
               </td>
