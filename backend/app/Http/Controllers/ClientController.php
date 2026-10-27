@@ -19,6 +19,22 @@ class ClientController extends Controller {
             });
         }
 
+        if ($from = $request->query('last_contact_followup_from')) {
+            $q->whereDate('last_contact_followup', '>=', $from);
+        }
+
+        if ($to = $request->query('last_contact_followup_to')) {
+            $q->whereDate('last_contact_followup', '<=', $to);
+        }
+
+        if ($request->query('last_contact_followup') === 'empty') {
+            $q->whereNull('last_contact_followup');
+        }
+
+        if ($request->query('last_contact_followup') === 'not_empty') {
+            $q->whereNotNull('last_contact_followup');
+        }
+
         return $q->latest()->paginate(15);
     }
 

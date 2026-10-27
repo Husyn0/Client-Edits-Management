@@ -7,6 +7,8 @@ export default function Clients() {
   const [clients, setClients] = useState([]);
   const [search, setSearch] = useState('');
   const [contactedFilter, setContactedFilter] = useState(''); // '' | 'yes' | 'no'
+  const [lastContactFrom, setLastContactFrom] = useState('');
+  const [lastContactTo, setLastContactTo] = useState('');
   const [hasEditsFilter, setHasEditsFilter] = useState('');   // '' | 'yes' | 'no'
   const [page, setPage] = useState(1);
   const [perPage, setPerPage] = useState(15);
@@ -19,6 +21,10 @@ export default function Clients() {
   const load = () => {
     const p = new URLSearchParams();
     if (search) p.append('search', search);
+    if (contactedFilter === 'yes') p.append('last_contact_followup', 'not_empty');
+    if (contactedFilter === 'no') p.append('last_contact_followup', 'empty');
+    if (lastContactFrom) p.append('last_contact_followup_from', lastContactFrom);
+    if (lastContactTo) p.append('last_contact_followup_to', lastContactTo);
     p.append('page', page);
     p.append('per_page', perPage);
     api.get(`/clients?${p}`).then(r => {
@@ -32,8 +38,8 @@ export default function Clients() {
     });
   };
 
-  useEffect(() => { load(); }, [search, page, perPage]);
-  useEffect(() => { setPage(1); }, [search, contactedFilter, hasEditsFilter, perPage]);
+  useEffect(() => { load(); }, [search, contactedFilter, lastContactFrom, lastContactTo, page, perPage]);
+  useEffect(() => { setPage(1); }, [search, contactedFilter, lastContactFrom, lastContactTo, hasEditsFilter, perPage]);
 
   const openCreate = () => { setEditing(null); setForm(empty); setModalOpen(true); };
   const openEdit = (c) => { setEditing(c); setForm({ ...c }); setModalOpen(true); };
@@ -61,6 +67,8 @@ export default function Clients() {
   const resetFilters = () => {
     setSearch('');
     setContactedFilter('');
+    setLastContactFrom('');
+    setLastContactTo('');
     setHasEditsFilter('');
     setPage(1);
   };
@@ -82,6 +90,16 @@ export default function Clients() {
           <option value="yes">Contacted</option>
           <option value="no">Not contacted</option>
         </select>
+        <label className="input-wrap" style={{ maxWidth: 180 }}>
+          <span>From</span>
+          <input type="date" className="input" value={lastContactFrom}
+            onChange={e => setLastContactFrom(e.target.value)} />
+        </label>
+        <label className="input-wrap" style={{ maxWidth: 180 }}>
+          <span>To</span>
+          <input type="date" className="input" value={lastContactTo}
+            onChange={e => setLastContactTo(e.target.value)} />
+        </label>
         <select className="input" style={{ maxWidth: 180 }}
           value={hasEditsFilter} onChange={e => setHasEditsFilter(e.target.value)}>
           <option value="">All edits</option>
@@ -94,7 +112,7 @@ export default function Clients() {
             <option key={n} value={n}>{n} / page</option>
           ))}
         </select>
-        {(search || contactedFilter || hasEditsFilter) && (
+        {(search || contactedFilter || lastContactFrom || lastContactTo || hasEditsFilter) && (
           <button className="btn btn-ghost" onClick={resetFilters}>Reset</button>
         )}
       </div>
