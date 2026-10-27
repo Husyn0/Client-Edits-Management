@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import api from '../api/api';
 import SearchableSelect from '../components/SearchableSelect';
+import PhoneInput from '../components/PhoneInput';
 
 const empty = { client_id:'', name:'', phone:'', email:'', address:'' };
 
@@ -165,8 +166,11 @@ export default function Companies() {
               </div>
               <div className="form-group">
                 <label>Phone</label>
-                <input className="input" value={form.phone || ''}
-                  onChange={e => setForm({ ...form, phone: e.target.value })} />
+                <PhoneInput
+                  value={form.phone || ''}
+                  onChange={value => setForm({ ...form, phone: value })}
+                  required
+                />
               </div>
               <div className="form-group">
                 <label>Email</label>

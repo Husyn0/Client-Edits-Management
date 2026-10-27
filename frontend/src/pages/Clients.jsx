@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import api from '../api/api';
+import PhoneInput from '../components/PhoneInput';
 
 const empty = { name:'', phone:'', email:'', last_contact_followup:'' };
 
@@ -156,13 +157,21 @@ export default function Clients() {
           <div className="modal" onClick={e => e.stopPropagation()}>
             <h2 style={{ marginBottom: 16 }}>{editing ? 'Edit' : 'New'} Client</h2>
             <form onSubmit={save}>
-              {['name','phone','email'].map(f => (
+              {['name','email'].map(f => (
                 <div className="form-group" key={f}>
                   <label>{f.replace('_',' ')}</label>
                   <input className="input" value={form[f] || ''}
-                    onChange={e => setForm({ ...form, [f]: e.target.value })} required />
+                    onChange={e => setForm({ ...form, [f]: e.target.value })} required={f !== 'email'} />
                 </div>
               ))}
+              <div className="form-group">
+                <label>Phone</label>
+                <PhoneInput
+                  value={form.phone || ''}
+                  onChange={value => setForm({ ...form, phone: value })}
+                  required
+                />
+              </div>
               <div className="form-group">
                 <label>Last Contact Followup</label>
                 <input type="date" className="input" value={form.last_contact_followup || ''}
