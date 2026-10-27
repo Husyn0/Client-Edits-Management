@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import api from '../api/api';
+import SearchableSelect from '../components/SearchableSelect';
 
 const empty = { company_id:'', name:'', description:'', base_price:'' };
 
@@ -150,13 +151,16 @@ export default function Services() {
             <form onSubmit={save}>
               <div className="form-group">
                 <label>Company</label>
-                <select className="input" value={form.company_id} required
-                  onChange={e => setForm({ ...form, company_id: e.target.value })}>
-                  <option value="">Select...</option>
-                  {companies.map(c => (
-                    <option key={c.id} value={c.id}>{c.name} — {c.client?.name}</option>
-                  ))}
-                </select>
+                <SearchableSelect
+                  value={form.company_id}
+                  onChange={value => setForm({ ...form, company_id: value })}
+                  options={companies.map(c => ({
+                    value: c.id,
+                    label: `${c.name} — ${c.client?.name || 'Unknown client'}`,
+                  }))}
+                  placeholder="Search company..."
+                  emptyText="No company found"
+                />
               </div>
               <div className="form-group">
                 <label>Name</label>

@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import api from '../api/api';
+import SearchableSelect from '../components/SearchableSelect';
 
 const empty = {
   client_id:'', service_id:'', title:'', description:'', due_date:'',
@@ -138,6 +139,24 @@ export default function Edits() {
     ? services.filter(s => String(s.company?.id ?? s.company_id) === String(filters.company_id))
     : services;
 
+  const editClientOptions = useMemo(
+    () => clients.map(c => ({ value: c.id, label: c.name })),
+    [clients]
+  );
+
+  const editServiceOptions = useMemo(() => {
+    return services
+      .filter((s) => {
+        if (!form.client_id) return true;
+        const companyClientId = s.company?.client?.id ?? s.company?.client_id ?? '';
+        return String(companyClientId) === String(form.client_id);
+      })
+      .map((s) => ({
+        value: s.id,
+        label: `${s.name} — ${s.company?.name || 'Unknown company'}`,
+      }));
+  }, [services, form.client_id]);
+
   const resetFilters = () => {
     setFilters({
       search: '', status: '', priority: '', payment: '',
@@ -251,23 +270,23 @@ export default function Edits() {
             <form onSubmit={save}>
               <div className="form-group">
                 <label>Client</label>
-                <select className="input" value={form.client_id} required
-                  onChange={e => setForm({ ...form, client_id: e.target.value })}>
-                  <option value="">Select...</option>
-                  {clients.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
-                </select>
+                <SearchableSelect
+                  value={form.client_id}
+                  onChange={value => setForm({ ...form, client_id: value, service_id: '' })}
+                  options={editClientOptions}
+                  placeholder="Search client..."
+                  emptyText="No client found"
+                />
               </div>
               <div className="form-group">
                 <label>Service</label>
-                <select className="input" value={form.service_id} required
-                  onChange={e => setForm({ ...form, service_id: e.target.value })}>
-                  <option value="">Select...</option>
-                  {services.map(s => (
-                    <option key={s.id} value={s.id}>
-                      {s.name} — {s.company?.name}
-                    </option>
-                  ))}
-                </select>
+                <SearchableSelect
+                  value={form.service_id}
+                  onChange={value => setForm({ ...form, service_id: value })}
+                  options={editServiceOptions}
+                  placeholder="Search service..."
+                  emptyText="No service found"
+                />
               </div>
               <div className="form-group">
                 <label>Title</label>
